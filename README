@@ -1,0 +1,26 @@
+
+
+Mongo Server instructions:
+- Go to the MONGO DB bin directory to user mongod
+- Start mongod pointing to the mongodb database and enable authorization
+- Probe data using mongodb CLI
+ 
+
+cd /Users/pafrank/mongodb/bin
+./mongod --dbpath=/Users/pafrank/Documents/WebDev/rolodex/mongodb --auth
+./mongo -u admin -p 12345 --authenticationDatabase admin
+
+
+Server code install and run:
+
+- Directory created using "express dir-name" to scaffold out the directory structure
+- "npm install" to install all the modules in the new package.json
+- "npm start" to star the server
+
+Server Test instructions:
+
+- Test tool is chai and mocha. 
+- Install mocha globally and chai in the project
+- Create test directory and add testcases
+- Run mocha to get it to execute the chai cases
+
