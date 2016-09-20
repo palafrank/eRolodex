@@ -10,6 +10,7 @@ var config = require('./config');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var profiles = require('./routes/profile');
+var search = require('./routes/search');
 var request = require('./routes/requests');
 var contacts = require('./routes/contacts');
 var authenticate = require('./authenticate')
@@ -54,7 +55,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/profiles', profiles);
 app.use('/request', request);
-//app.use('/contacts', contacts);
+app.use('/search', search);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

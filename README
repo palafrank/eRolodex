@@ -10,6 +10,9 @@ cd /Users/pafrank/mongodb/bin
 ./mongod --dbpath=/Users/pafrank/Documents/WebDev/rolodex/mongodb --auth
 ./mongo -u admin -p 12345 --authenticationDatabase admin
 
+Create an index in Mongo:
+
+db.profiles.createIndex({"profiles.lastName":"text", "profiles.firstName":"text"})
 
 Server code install and run:
 
