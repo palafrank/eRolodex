@@ -33,7 +33,7 @@ var addressSchema = new Schema ({
     },
     address2: {
       type: String,
-      required: true,
+      required: false,
     },
     city: {
       type: String,
@@ -54,6 +54,10 @@ var addressSchema = new Schema ({
 });
 
 var infoSchema = new Schema({
+  profileOwner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   profileName: {
     type: String,
     required: true,
@@ -92,6 +96,10 @@ var profilesSchema = new Schema({
       ref: 'User'
     },
     profiles: [infoSchema],
+    profileRefs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ProfileData'
+    }],
     photos: [String]
   },
   {

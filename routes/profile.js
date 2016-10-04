@@ -5,6 +5,7 @@ var multer = require('multer');
 var ProfilesModule = require('../models/profiles.js');
 var Verify = require('./verify');
 var Profiles = ProfilesModule.Profiles;
+var ProfileData = ProfilesModule.ProfileData;
 var profileRouter = express.Router();
 var upload = multer({
                         dest: './public/images/',
@@ -20,6 +21,7 @@ profileRouter.route('/')
 
 .get(Verify.verifyOrdinaryUser,
       function(req, res, next) {
+/*
   Profiles.find({profileOwner:req.decoded._doc._id}, function(err, profiles) {
     if(err) {
       res.status(500);
@@ -27,10 +29,67 @@ profileRouter.route('/')
       res.status(200).json(profiles);
     };
   });
+*/
+  Profiles.find({profileOwner:req.decoded._doc._id})
+    .populate('profileRefs')
+    .exec(function(err, profiles) {
+      if(err) {
+        console.log("Failed to populate refs");
+        res.status(500);
+      } else {
+        console.log("Populated " + profiles);
+        res.status(200).json(profiles);
+      };
+    });
 })
 
 .post(Verify.verifyOrdinaryUser,
       function(req, res, next) {
+
+  var profileObjId = null;
+  var addRef = false;
+
+        ProfileData.findOneAndUpdate({_id:req.body._id}, req.body,
+          {upsert:true, new: true},
+          function(err, profile) {
+          if(err) {
+            console.log("Error inserting ProfileData");
+          } else {
+            console.log("Successfully inserted/updated ProfileData");
+            profile.profileOwner = req.decoded._doc._id;
+            profile.save(function(err, profile) {
+              if(err) {
+                console.log("Error saving profileowner: " + err);
+              }
+              profileObjId = profile._id;
+            })
+          }
+        })
+        Profiles.findOne({profileOwner:req.decoded._doc._id},
+                            function(err, profiles) {
+          if(err) {
+            console.log("Failed to get the profile");
+            res.status(504).json({"status":"FAILURE"});
+          } else {
+            if(profiles.profileRefs.length) {
+              var objIndex = profiles.profileRefs.indexOf(profileObjId);
+              if(objIndex = -1) {
+                console.log("Added the ref to profile now " + profileObjId);
+                addRef = true;
+              }
+            } else {
+              console.log("Added the ref to profile " + profileObjId );
+              addRef = true;
+            }
+            if(addRef) {
+              profiles.update({$addToSet:{profileRefs:profileObjId}},function(err, rl) {
+                if(err) {
+                  console.log("Failed to save ref in profile");
+                }
+              })
+            }
+          }
+        })
 
   Profiles.findOne({profileOwner:req.decoded._doc._id},
                       function(err, profiles) {
@@ -106,8 +165,16 @@ profileRouter.route('/')
 
 .delete(Verify.verifyOrdinaryUser, function(req, res, next) {
   Profiles.findOneAndUpdate({profileOwner:req.decoded._doc._id},
-                                  {$set:{'profiles':[]}},
+                                  {$set:{'profileRefs':[]}},
                                   {multi: true, new: true},
+                                  function(err, profile) {
+    if(err) {
+      res.status(500).json(profile);
+    } else {
+      res.status(200).json(profile);
+    }
+  });
+  ProfileData.deleteMany({profileOwner:req.decoded._doc._id},
                                   function(err, profile) {
     if(err) {
       res.status(500).json(profile);
@@ -123,13 +190,21 @@ profileRouter.route('/:profileId')
       function(req, res, next) {
   //console.log("ID: ", req.params.profileId)
   Profiles.findOneAndUpdate({profileOwner:req.decoded._doc._id},
-          {$pull:{'profiles': {_id:req.params.profileId}}},
+          {$pull:{'profileRefs': {_id:req.params.profileId}}},
           {new:true},
           function(err, prof) {
     if(err) throw err;
     //Profiles.find({profileOwner:req.decoded._doc._id}, function(err, profiles) {
       res.status(200).json(prof);
     //})
+  });
+  ProfileData.deleteOne({_id:req.params.profileId},
+                                  function(err, profile) {
+    if(err) {
+      res.status(500).json(profile);
+    } else {
+      res.status(200).json(profile);
+    }
   });
 });
 
