@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var RequestModule = require('../models/request.js');
 var RequestList = RequestModule.RequestList;
-var ContactList = RequestModule.ContactList;
+var ContactList = RequestModule.Contacts;
 var Request = RequestModule.Request;
 var Verify = require('./verify');
 var requestRouter = express.Router();
@@ -45,7 +45,6 @@ requestRouter.route('/')
 
 .post(Verify.verifyOrdinaryUser,
           function(req, res, next) {
-  //console.log(req);
   RequestList.findOneAndUpdate({ownerId:req.body.ownerId},
                         {$setOnInsert: {ownerId:req.body.ownerId}},
                         {upsert:true, new: true},
@@ -57,22 +56,26 @@ requestRouter.route('/')
       if(!requestList.requests.length) {
         requestList.requests.push(req.body.request);
       } else {
-        for(var i = 0; i < requestList.requests.length; i++) {
+        var max = requestList.requests.length
+        for(i = 0; i < max; i++) {
           if(requestList.requests[i].profileOwner
-                      === req.body.request.profileOwner) {
+                      == req.body.request.profileOwner) {
             requestList.requests[i] = req.body.request;
             found = true;
+            console.log("Found a request");
+            break;
           }
-          if(!found) {
-            requestList.requests.push(req.body.request);
-          }
+        }
+        if(!found) {
+          console.log("Did not find a request");
+          requestList.requests.push(req.body.request);
         }
       }
       requestList.save(function(err, rl) {
         if(err) {
           return res.status(404).json({"status":"FAILURE", "message": err.message});
         }  else {
-          return res.status(200).json({"status":"SUCCESS"});
+          return res.status(200).json(rl);
         }
       });
     }
@@ -125,6 +128,7 @@ requestRouter.route('/reject')
         if(err) {
           return res.status(404).json({"status":"FAILURE", "message": err.message});
         }  else {
+          console.log(rl);
           return res.status(200).json(rl);
         }
       });
@@ -135,32 +139,41 @@ requestRouter.route('/reject')
 requestRouter.route('/accept')
 .delete(Verify.verifyOrdinaryUser,
           function(req, res, next) {
-  console.log(req.body.profileOwner);
+
+  var request={};
+
+  console.log(req.query.profileOwner);
   RequestList.findOne({ownerId : req.decoded._doc._id},
         function(err, requestList) {
-    var accept = [];
     if(err) {
       console.log(err);
       return res.status(404).json({"status":"FAILURE", "message":err.message});
     } else {
       for(var i=0; i<requestList.requests.length; i++) {
-        if(requestList.requests[i].profileOwner == req.body.profileOwner)
-          accept = requestList.requests.splice(i, 1);
+        if(requestList.requests[i].profileOwner == req.query.profileOwner) {
+          request = requestList.requests[i];
+          requestList.requests.splice(i, 1);
+          break;
+        }
       }
       requestList.save(function(err, rl) {
         if(err) {
-          return res.status(404).json({"status":"FAILURE", "message": err.message});
+          //return res.status(404).json({"status":"FAILURE", "message": err.message});
+          console.log("Failed to delete request list");
         }  else {
-          return res.status(200).json({"status":"SUCCESS"});
+          //return res.status(200).json({"status":"SUCCESS"});
+          console.log("Removed the entry from the request list " + rl);
         }
       });
     }
   })
 
-  if(accept.length != 1) {
-    console.log("Unexpected number of request accepted " + accept.length);
+  if(!request) {
+    console.log("Unexpected number of request accepted ");
     return res.status(404).json({"status":"FAILURE"});
   }
+
+  console.log("Going to add to contacts");
 
   ContactList.findOneAndUpdate({ownerId: req.decoded._doc._id},
                         {$setOnInsert: {ownerId: req.decoded._doc._id}},
@@ -170,18 +183,23 @@ requestRouter.route('/accept')
 
     } else {
       var found = false;
+      console.log("Created contact list");
       if(!contactList.contacts.length) {
-          contactList.contacts.push(accept[0]);
+          console.log("First entry in contact list");
+          contactList.contacts.push(request);
         } else {
           for(var i = 0; i < contactList.contacts.length; i++) {
             if(contactList.contacts[i].profileOwner
-                        === accept[0].profileOwner) {
-              contactList.contacts[i] = accept[0];
+                        == request.profileOwner) {
+              contactList.contacts[i] = request;
+              console.log("Update an existing contact");
               found = true;
+              break;
             }
-            if(!found) {
-              contactList.contacts.push(accept[0]);
-            }
+          }
+          if(!found) {
+            console.log("New entry in contacts");
+            contactList.contacts.push(request);
           }
         }
         contactList.save(function(err, rl) {
