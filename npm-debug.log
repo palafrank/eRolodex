@@ -7,7 +7,7 @@
 6 silly lifecycle erolodex-server@0.0.0~prestart: no script for prestart, continuing
 7 info lifecycle erolodex-server@0.0.0~start: erolodex-server@0.0.0
 8 verbose lifecycle erolodex-server@0.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle erolodex-server@0.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/pafrank/Documents/WebDev/erolodex-server/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/go/bin:/usr/local/bin/jamf:/Users/pafrank/Library/Android/sdk/platform-tools:/Users/pafrank/Library/Android/sdk/tools
+9 verbose lifecycle erolodex-server@0.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/pafrank/Documents/WebDev/erolodex-server/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/go/bin:/usr/local/bin/jamf:/Applications/Wireshark.app/Contents/MacOS:/Users/pafrank/Library/Android/sdk/platform-tools:/Users/pafrank/Library/Android/sdk/tools
 10 verbose lifecycle erolodex-server@0.0.0~start: CWD: /Users/pafrank/Documents/WebDev/erolodex-server
 11 silly lifecycle erolodex-server@0.0.0~start: Args: [ '-c', 'node ./bin/www' ]
 12 silly lifecycle erolodex-server@0.0.0~start: Returned: code: 1  signal: null
@@ -24,7 +24,7 @@
 14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:215:5)
 15 verbose pkgid erolodex-server@0.0.0
 16 verbose cwd /Users/pafrank/Documents/WebDev/erolodex-server
-17 error Darwin 15.6.0
+17 error Darwin 16.4.0
 18 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "start"
 19 error node v5.8.0
 20 error npm  v3.7.3

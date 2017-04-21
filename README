@@ -27,3 +27,5 @@ Server Test instructions:
 - Create test directory and add testcases
 - Run mocha to get it to execute the chai cases
 
+Start App:
+# ionic serve --lab

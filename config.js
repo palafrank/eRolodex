@@ -1,6 +1,7 @@
 module.exports = {
   'secretKey': '12345-67890-09876-54321',
-  'mongoUrl': 'mongodb://frank:frank@localhost:27017/eRolodex?authSource=admin',
+  'mongoUrl': 'mongodb://frank:frank@erolodexdb:27017/eRolodex?authSource=admin',
+  'mongoBackupUrl': 'mongodb://frank:frank@localhost:27017/eRolodex?authSource=admin',
   'mongoTestUrl': 'mongodb://frank:frank@localhost:27017/eRolodexTest?authSource=admin',
   'facebook': {
         clientID: '921706871271666',
